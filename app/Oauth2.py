@@ -1,0 +1,44 @@
+from datetime import datetime, timedelta, timezone
+from fastapi import HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordBearer
+import jwt
+from jwt.exceptions import InvalidTokenError
+from .schemas.token import TokenData
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/login")
+
+SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+ALGORITHM = "HS256"
+TOKEN_EXPIRE_MINS = 5
+
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+
+    expire = datetime.now(timezone.utc) + timedelta(minutes=TOKEN_EXPIRE_MINS)
+    to_encode.update({"exp": expire})
+
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt
+
+
+def verify_access_token(token: str, credentials_exception):
+    try:
+
+        payload = jwt.decode(token, SECRET_KEY, algorithms=ALGORITHM)
+        id: str = payload.get("user_id")
+        role: str = payload.get("user_role")
+
+        if id is None:
+            raise credentials_exception
+        token_data = TokenData(id=str(id), role=role)
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token Expired")
+    except jwt.InvalidTokenError:
+        raise credentials_exception
+    
+    return token_data
+
+def get_current_user(token: str = Depends(oauth2_scheme)):
+    credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Could not validate credtials.", headers={"WWW-Authenticate": "Bearer"})
+    return verify_access_token(token, credentials_exception)
