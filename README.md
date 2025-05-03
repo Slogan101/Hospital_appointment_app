@@ -96,12 +96,12 @@ Each role has full CRUD access to manage their profile:
     uvicorn main:app --reload
 
 📫 **API Documentation**
-Visit http://localhost:8000/docs to access the interactive Swagger UI for testing all available endpoints.
+    Visit http://localhost:8000/docs to access the interactive Swagger UI for testing all available endpoints.
 
 
 
 ✍️ **Author**
-Built with ❤️ by Slogan_codes.
+    Built with ❤️ by Slogan_codes.
 
 
 
