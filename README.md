@@ -76,27 +76,31 @@ Each role has full CRUD access to manage their profile:
    git clone https://github.com/slogan101/Hospital_appointment_app.git
    cd Hospital_Appointment
 
-2. Create and activate virtual environment:
+2. **Create and activate virtual environment:**
+    ```bash
     python -m venv venv
     source venv/bin/activate  # or venv\Scripts\activate on Windows
 
-3. Install dependencies:
+3. **Install dependencies:**
+    ```bash
     pip install -r requirements.txt
 
-4. Configure environment variables (.env):
+4. **Configure environment variables (.env):**
+    ```bash
     DATABASE_URL=postgresql://user:password@localhost/db_name
     SECRET_KEY=your_jwt_secret
     ALGORITHM=HS256
 
-5. Start the app:
+5. **Start the app:**
+    ```bash
     uvicorn main:app --reload
 
-📫 API Documentation
+📫 **API Documentation**
 Visit http://localhost:8000/docs to access the interactive Swagger UI for testing all available endpoints.
 
 
 
-✍️ Author
+✍️ **Author**
 Built with ❤️ by Slogan_codes.
 
 
