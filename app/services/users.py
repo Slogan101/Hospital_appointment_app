@@ -29,7 +29,7 @@ class UserCrud:
        confirm = confirm_credentials(user_credentials.password, user.password)
        if not confirm:
           raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid Credentials!")
-       access_token = Oauth2.create_access_token(data={"user_id":user.id, "user_role":user.role})
+       access_token = Oauth2.create_access_token(data={"user_id": str(user.id), "user_role":user.role})
 
        response = Token(
           access_token = access_token,

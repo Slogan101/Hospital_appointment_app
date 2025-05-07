@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr
+from uuid import UUID
 
 
 class PatientBase(BaseModel):
@@ -17,7 +18,7 @@ class PatientCreate(PatientBase):
     pass
 
 class Patient(PatientBase):
-    id: int
+    id: UUID
 
 class PatientUpadte(BaseModel):
     name: str | None = None

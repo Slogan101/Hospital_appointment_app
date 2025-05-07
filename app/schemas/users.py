@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
+from uuid import UUID
 
 
 class UserBase(BaseModel):
@@ -10,15 +11,15 @@ class UserCreate(UserBase):
     pass
 
 class User(UserBase):
-    id: int
+    id: UUID
 
 
 class UserResponse(BaseModel):
-    id: int
+    id: UUID
     email: EmailStr
     created_at: datetime
-    # class Config:
-    #     from_attributes = True
+    class Config:
+        from_attributes = True
 
 class UserLogin(BaseModel):
     email: EmailStr

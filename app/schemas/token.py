@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from uuid import UUID 
 
 
 
@@ -7,5 +8,5 @@ class Token(BaseModel):
     token_type: str
 
 class TokenData(BaseModel):
-    id: str | None
+    id: UUID | None
     role: str | None

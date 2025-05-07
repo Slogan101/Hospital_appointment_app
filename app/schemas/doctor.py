@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from pydantic import BaseModel, EmailStr
 from datetime import time
-
+from uuid import UUID
 
 
 class DoctorBase(BaseModel):
@@ -19,7 +19,7 @@ class DoctorCreate(DoctorBase):
     pass
 
 class Doctor(DoctorBase):
-    id: int
+    id: UUID
 
 class DoctorUpdate(BaseModel):
     name: str | None = None

@@ -4,6 +4,7 @@ from fastapi.security import OAuth2PasswordBearer
 import jwt
 from jwt.exceptions import InvalidTokenError
 from .schemas.token import TokenData
+from uuid import UUID
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/login")
 
@@ -31,7 +32,7 @@ def verify_access_token(token: str, credentials_exception):
 
         if id is None:
             raise credentials_exception
-        token_data = TokenData(id=str(id), role=role)
+        token_data = TokenData(id=UUID(id), role=role)
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token Expired")
     except jwt.InvalidTokenError:

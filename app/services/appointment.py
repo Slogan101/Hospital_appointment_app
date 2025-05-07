@@ -3,7 +3,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from .. import models
 from datetime import datetime, timezone, timedelta, time
-
+from ..utils import generate_meeting_link
 
 
 WORKING_HOURS = range(9, 16)
@@ -22,10 +22,14 @@ class AppointmentCrud():
         #check if the ID is a patient
         patient_query = db.query(models.User).filter(models.User.id == current_user.id)
         patient = patient_query.first()
+        if patient.role !="patient":
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only patients are allowed to book an appointment.")
         if not patient:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found!")
-        if patient_query.first().role != "patient":
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only patients are allowed to book an appointment.")
+        if patient:
+            patient_main = db.query(models.Patient).filter(models.Patient.id == current_user.id).first()
+        
+       
         
         # Check if the doctor ID passed exists and is actually a doctor
         doctor_query = db.query(models.User).filter(models.User.id == payload.doctor_id)
@@ -34,8 +38,10 @@ class AppointmentCrud():
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Doctor not found!")
         if doctor_query.first().role != "doctor":
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only book appointment with a doctor!")
+        if user_doctor:
+            doctor_main = db.query(models.Doctor).filter(models.Doctor.id == payload.doctor_id).first()
         
-        #Checks the doctors time_slots and confims if the time entered by the patient is free for the doctor.
+        #Checks the doctors time_slots and confirms if the time entered by the patient is free for the doctor.
 
         booked_slots = db.query(models.Appointment.time_slot).filter(models.Appointment.doctor_id == payload.doctor_id, models.Appointment.appointment_date == payload.appointment_date).all()
         booked_times = [slot[0].strftime("%H:%M") for slot in booked_slots]
@@ -53,11 +59,19 @@ class AppointmentCrud():
         if appointment_time not in WORKING_HOURS:
             raise HTTPException(status_code=400, detail="Appointments must be scheduled between 9:00 AM and 4:00 PM.")
         
-        new_appointment = models.Appointment(patient_id=current_user.id, **payload.model_dump())
+        meeting_link = generate_meeting_link(doctor_main.name, patient_main.name)
+        new_appointment = models.Appointment(patient_id=current_user.id, meeting_link=meeting_link, **payload.model_dump())
         db.query(models.Doctor).filter(models.Doctor.id == payload.doctor_id).update({"is_available": False})
         db.add(new_appointment)
         db.commit()
-        return new_appointment
+        return {
+        "id": new_appointment.id,
+        "appointment_date": new_appointment.appointment_date,
+        "time_slot": new_appointment.time_slot,
+        "meeting_link": new_appointment.meeting_link,
+        "doctor_name": doctor_main.name,  # assuming relationship is defined
+        "patient_name": patient_main.name  # assuming relationship is defined
+    }
     
 
     @staticmethod
